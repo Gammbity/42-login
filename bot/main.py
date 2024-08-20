@@ -1,8 +1,8 @@
-from aiogram import Bot, Dispatcher, F
+from aiogram import Bot, Dispatcher
 from aiogram.filters import CommandStart, Command
 from aiogram.types import BotCommand
 from asyncio import run
-from functions import send_password, get_contact, start_command, password_recovery
+from functions import send_password, get_contact, start_command
 import states
 
 dp = Dispatcher()
@@ -21,7 +21,6 @@ async def start():
     dp.message.register(start_command, CommandStart())
     dp.message.register(send_password, states.NewMember.login)
     dp.message.register(get_contact, states.NewMember.phone)
-    dp.callback_query.register(password_recovery, F.data == 'password_recovery')
     
     dp.message.register(send_password, Command('login'))
 

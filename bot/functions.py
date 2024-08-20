@@ -1,4 +1,4 @@
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 import states
 import keyboards
@@ -57,11 +57,4 @@ async def send_password(message:Message):
     user = cursor.fetchone()
     cursor.execute("INSERT INTO user_generatepassword(password, time, user_id) VALUES (%s, %s, %s)", (raqam, time, user))
     connection.commit()
-    await message.answer(str(raqam), reply_markup=keyboards.password_recovery)
-
-async def password_recovery(callback_data:CallbackQuery, state:FSMContext):
-    time = r.get(f"password_time_{callback_data.from_user.id}")
-    time = datetime.fromtimestamp(int(time))
-    if datetime.now() - time > 60:
-       return await callback_data.message.answer("Parol hali aktiv")
-    await state.set_state(states.NewMember.login) 
+    await message.answer(str(raqam))

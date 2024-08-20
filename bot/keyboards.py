@@ -1,10 +1,4 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
-
-password_recovery = InlineKeyboardMarkup(inline_keyboard=[
-    [
-        InlineKeyboardButton(text="Password Recovery", callback_data='password_recovery')
-    ]
-])
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 contact_markup = ReplyKeyboardMarkup(keyboard=[
     [
