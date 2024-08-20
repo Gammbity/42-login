@@ -4,9 +4,7 @@ import states
 import keyboards
 import random
 import psycopg2
-import redis
 from datetime import datetime
-
 
 db_name = "42"
 db_user = "postgres"
@@ -46,13 +44,10 @@ async def get_contact(message:Message, state:FSMContext):
     connection.commit()
     await state.set_state(states.NewMember.login)
 
-r = redis.Redis(host='localhost', port=6379, db=0)
 
 async def send_password(message:Message):
     raqam = random.randint(100000, 999999)
     time = datetime.now()
-    time1 = int(time.timestamp())
-    r.set(f"password_time_{message.from_user.id}", time1)
     cursor.execute("SELECT id FROM user_user WHERE telegram_id=%s", (message.from_user.id,))
     user = cursor.fetchone()
     cursor.execute("INSERT INTO user_generatepassword(password, time, user_id) VALUES (%s, %s, %s)", (raqam, time, user))
