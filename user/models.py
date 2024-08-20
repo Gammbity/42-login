@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser, UserManager
+from django.contrib.auth.models import UserManager, AbstractBaseUser
 from django.contrib.auth.hashers import make_password
 
 class CustomUserManager(UserManager):
@@ -27,7 +27,7 @@ class CustomUserManager(UserManager):
 
         return self._create_user(telegram_id, password, **extra_fields)
 
-class User(AbstractUser):
+class User(AbstractBaseUser):
     telegram_id = models.PositiveBigIntegerField(unique=True)
     username = models.CharField(max_length=255, null=True, blank=True)
     full_name = models.CharField(max_length=255)
@@ -35,10 +35,10 @@ class User(AbstractUser):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    username = None
     USERNAME_FIELD = "telegram_id"
     REQUIRED_FIELDS = []
     objects = CustomUserManager()
+
 
     def __str__(self) -> str:
         return self.full_name
@@ -46,3 +46,17 @@ class User(AbstractUser):
     class Meta:
         verbose_name = 'foydalanuvchi'
         verbose_name_plural = 'faydalanuchilar'
+
+
+class GeneratePassword(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    password = models.CharField(max_length=10)
+    time = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return self.user
+    
+    class Meta:
+        ordering = ['-time']
+        verbose_name = 'parol generatsiyasi'
+        verbose_name_plural = 'parol generatsiyalari'
