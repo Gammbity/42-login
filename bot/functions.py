@@ -1,10 +1,13 @@
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 import states
 import keyboards
 import random
 import psycopg2
+import redis
 from datetime import datetime
+
+
 db_name = "42"
 db_user = "postgres"
 db_password = "Qwerty123$"
@@ -43,11 +46,22 @@ async def get_contact(message:Message, state:FSMContext):
     connection.commit()
     await state.set_state(states.NewMember.login)
 
+r = redis.Redis(host='localhost', port=6379, db=0)
+
 async def send_password(message:Message):
     raqam = random.randint(100000, 999999)
     time = datetime.now()
+    time1 = int(time.timestamp())
+    r.set(f"password_time_{message.from_user.id}", time1)
     cursor.execute("SELECT id FROM user_user WHERE telegram_id=%s", (message.from_user.id,))
     user = cursor.fetchone()
     cursor.execute("INSERT INTO user_generatepassword(password, time, user_id) VALUES (%s, %s, %s)", (raqam, time, user))
     connection.commit()
-    await message.answer(str(raqam))
+    await message.answer(str(raqam), reply_markup=keyboards.password_recovery)
+
+async def password_recovery(callback_data:CallbackQuery, state:FSMContext):
+    time = r.get(f"password_time_{callback_data.from_user.id}")
+    time = datetime.fromtimestamp(int(time))
+    if datetime.now() - time > 60:
+       return await callback_data.message.answer("Parol hali aktiv")
+    await state.set_state(states.NewMember.login) 
