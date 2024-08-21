@@ -1,10 +1,9 @@
-from django.shortcuts import render
 from rest_framework import generics
-from user.models import User, GeneratePassword
+from user.models import GeneratePassword
 from rest_framework.response import Response
 from user.serializers import RegistrationSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.utils.timezone import now, make_aware
+from django.utils.timezone import now
 
 from datetime import datetime
 
