@@ -5,8 +5,6 @@ from user.serializers import RegistrationSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.utils.timezone import now
 
-from datetime import datetime
-
 
 class RegistrationView(generics.GenericAPIView):
     serializer_class = RegistrationSerializer

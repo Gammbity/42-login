@@ -1,10 +1,12 @@
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
-import states
-import keyboards
+import config.bot.states as states
+import config.bot.keyboards as keyboards
 import random
 import psycopg2
 from datetime import datetime
+
+
 
 db_name = "42"
 db_user = "postgres"
@@ -48,8 +50,26 @@ async def get_contact(message:Message, state:FSMContext):
 async def send_password(message:Message):
     raqam = random.randint(100000, 999999)
     time = datetime.now()
-    cursor.execute("SELECT id FROM user_user WHERE telegram_id=%s", (message.from_user.id,))
-    user = cursor.fetchone()
-    cursor.execute("INSERT INTO user_generatepassword(password, time, user_id) VALUES (%s, %s, %s)", (raqam, time, user))
+    cursor.execute("SELECT * FROM user_user WHERE telegram_id=%s", (message.from_user.id,))
+    user = cursor.fetchall()
+    user_id = user[0][0]
+    cursor.execute("INSERT INTO user_generatepassword(password, time, user_id) VALUES (%s, %s, %s)", (raqam, time, user_id))
     connection.commit()
-    await message.answer(str(raqam))
+    await message.answer(str(raqam), reply_markup=keyboards.password_recovery)
+
+
+async def recovery_password(callback_data:CallbackQuery):
+    await callback_data.message.delete()
+    raqam = random.randint(100000, 999999)
+    time = datetime.now()
+    cursor.execute("SELECT * FROM user_user WHERE telegram_id=%s", (callback_data.from_user.id,))
+    user = cursor.fetchall()
+    user_id = user[0][0]
+    cursor.execute("INSERT INTO user_generatepassword(password, time, user_id) VALUES (%s, %s, %s)", (raqam, time, user_id))
+    connection.commit()
+    await callback_data.message.answer(str(raqam), reply_markup=keyboards.password_recovery)
+
+
+
+
+    
