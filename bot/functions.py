@@ -1,7 +1,7 @@
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
-import config.bot.states as states
-import config.bot.keyboards as keyboards
+import states as states
+import keyboards as keyboards
 import random
 import psycopg2
 from datetime import datetime

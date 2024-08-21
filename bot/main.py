@@ -2,8 +2,8 @@ from aiogram import Bot, Dispatcher, F
 from aiogram.filters import CommandStart, Command
 from aiogram.types import BotCommand
 from asyncio import run
-from config.bot.functions import send_password, get_contact, start_command, recovery_password
-import config.bot.states as states
+from functions import send_password, get_contact, start_command, recovery_password
+import states as states
 
 dp = Dispatcher()
 
