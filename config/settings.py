@@ -41,7 +41,6 @@ INSTALLED_APPS = [
 
     #apps
     'user',
-    'bot',
 ]
 
 MIDDLEWARE = [
