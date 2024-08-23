@@ -1,12 +1,13 @@
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
-import states as states
-import keyboards as keyboards
+from . import states
+from . import keyboards
 import random
 import psycopg2
 from datetime import datetime
-
-
+from django.utils.timezone import now
+import html
+import markdown
 
 db_name = "42"
 db_user = "postgres"
@@ -36,7 +37,7 @@ async def start_command(message:Message, state:FSMContext):
     user = cursor.fetchone()
     if user:
         return await send_password(message)
-    await message.answer("Kantaktingizni pastdagi tugma orqali kiriting", reply_markup=keyboards.contact_markup)
+    await message.answer("Kantaktingizni pastdagi tugma orqali kiriting ⬇️", reply_markup=keyboards.contact_markup)
     await state.set_state(states.NewMember.phone)
 
 
@@ -50,15 +51,20 @@ async def get_contact(message:Message, state:FSMContext):
 async def send_password(message:Message):
     raqam = random.randint(100000, 999999)
     time = datetime.now()
-    cursor.execute("SELECT * FROM user_user WHERE telegram_id=%s", (message.from_user.id,))
-    user = cursor.fetchall()
-    user_id = user[0][0]
-    cursor.execute("INSERT INTO user_generatepassword(password, time, user_id) VALUES (%s, %s, %s)", (raqam, time, user_id))
+    cursor.execute("SELECT id FROM user_user WHERE telegram_id=%s", (message.from_user.id,))
+    user_id = cursor.fetchall()
+    cursor.execute("INSERT INTO user_generatepassword(password, time, user_id) VALUES (%s, %s, %s)", (raqam, time, user_id[0][0]))
     connection.commit()
     await message.answer(str(raqam), reply_markup=keyboards.password_recovery)
 
 
-async def recovery_password(callback_data:CallbackQuery):
+async def recovery_password(callback_data:CallbackQuery, state:FSMContext):
+    cursor.execute("SELECT id FROM user_user WHERE telegram_id=%s", (callback_data.from_user.id,))
+    user_id = cursor.fetchall()
+    cursor.execute("SELECT time FROM user_generatepassword WHERE user_id=%s ORDER BY time DESC", (user_id[0][0],))
+    time = cursor.fetchone()
+    if (now() - time[0]).total_seconds() < 60:
+        return await callback_data.answer("Parolingiz hali kuchda! ☝️")
     await callback_data.message.delete()
     raqam = random.randint(100000, 999999)
     time = datetime.now()
@@ -68,8 +74,3 @@ async def recovery_password(callback_data:CallbackQuery):
     cursor.execute("INSERT INTO user_generatepassword(password, time, user_id) VALUES (%s, %s, %s)", (raqam, time, user_id))
     connection.commit()
     await callback_data.message.answer(str(raqam), reply_markup=keyboards.password_recovery)
-
-
-
-
-    
