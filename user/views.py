@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from user.serializers import RegistrationSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.utils.timezone import now
+from rest_framework import status
 
 
 class RegistrationView(generics.GenericAPIView):
@@ -21,4 +22,4 @@ class RegistrationView(generics.GenericAPIView):
                             'access': str(refresh_token.access_token)
                         })
                 return Response("Parolning faollik muddati 1 daqiqa!")
-        return Response("Parol hali yaratilmagan!")
+        return Response("Parol hali yaratilmagan!", status=status.HTTP_400_BAD_REQUEST)
